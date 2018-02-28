@@ -27,7 +27,12 @@ using Windows.UI;
 using Windows.UI.Xaml.Media.Imaging;
 using System.Reflection;
 
-// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
+/*
+28-02-2018 Michael Kollmeyer
+    TransportAPI moved to different server
+       - adopted the class, request and deserialization
+
+     */
 
 namespace SmartHome
 {
@@ -245,7 +250,7 @@ namespace SmartHome
 
             // Fill a string with API Transport Data
             Debug.WriteLine(DateTime.Now.ToString("HH:mm:ss.f") + " - Request Transport(2) Data...");            
-            WebRequest T_wrGETURL = WebRequest.Create("http://transport.opendata.ch/v1/connections?from=008573675&to=008506899&limit=5");
+            WebRequest T_wrGETURL = WebRequest.Create("https://timetable.search.ch/api/route.json?from=8573675&to=8506899&num=5&via=8573674");
             WebResponse T_response = await T_wrGETURL.GetResponseAsync();
             Stream T_dataStream = T_response.GetResponseStream();
             StreamReader T_reader = new StreamReader(T_dataStream);
@@ -254,7 +259,7 @@ namespace SmartHome
 
             Debug.WriteLine(DateTime.Now.ToString("HH:mm:ss.f") + " - Request Transport(7) Data...");
             // Fill a string with API Transport Data
-            T_wrGETURL = WebRequest.Create("http://transport.opendata.ch/v1/connections?from=008590942&to=008506899&limit=5");
+            T_wrGETURL = WebRequest.Create("https://timetable.search.ch/api/route.json?from=8590942&to=8506899&num=5&via=8590969");
             T_response = await T_wrGETURL.GetResponseAsync();
             T_dataStream = T_response.GetResponseStream();
             T_reader = new StreamReader(T_dataStream);
@@ -274,16 +279,16 @@ namespace SmartHome
             m = 0;
             for (l=0; l<=4; l++)
             {
-                DateTime.TryParse(TransportObj2.connections[k].from.departure, out TimeBus2);
-                DateTime.TryParse(TransportObj7.connections[m].from.departure, out TimeBus7);
+                DateTime.TryParse(TransportObj2.connections[k].departure, out TimeBus2);
+                DateTime.TryParse(TransportObj7.connections[m].departure, out TimeBus7);
                 if (TimeBus2<=TimeBus7)
                 {
-                    ScheduleBus.Add(new ScheduleObject() { Number = TransportObj2.connections[k].sections[0].journey.number, Time = TimeBus2 });
+                    ScheduleBus.Add(new ScheduleObject() { Number = TransportObj2.connections[k].legs[0].line, Time = TimeBus2 });
                     k++;
                 }
                 else
                 {
-                    ScheduleBus.Add(new ScheduleObject() { Number = TransportObj7.connections[k].sections[0].journey.number, Time = TimeBus7 });
+                    ScheduleBus.Add(new ScheduleObject() { Number = TransportObj7.connections[k].legs[0].line, Time = TimeBus7 });
                     m++;
                 }
                 
